@@ -77,6 +77,61 @@ Use this matrix for internal ranking and credibility assessment:
 - Anonymous sources or rumors
 - Aggregator sites without original reporting
 
+### 6. Strict Publication Date Verification 📅 (DEDUPLICATION CORE RULE)
+
+**CRITICAL: This rule overrides all other content selection rules.**
+
+For EVERY candidate news item, you MUST:
+
+**Step 1 - Extract the original publication timestamp**:
+- Look for `<meta property="article:published_time">` in page HTML
+- Look for `<time datetime="...">` tags
+- Look for RSS feed `<pubDate>` field
+- Look for visible date strings on the page (e.g., "February 5, 2026")
+- If ONLY a date is available (no time), record as `YYYY-MM-DD (time unknown)`
+- If NO date can be found at all, mark as `（发布时间未知）` and DEPRIORITIZE this item
+
+**Step 2 - Apply the strict time window filter**:
+- Include ONLY items where original publication date = today OR yesterday (within 36-hour window)
+- EXCLUDE any item published more than 36 hours before the task cutoff time
+- Exception: research papers may be up to 14 days old if they gained significant traction today
+
+**Step 3 - Source-specific handling for high-repeat offenders**:
+
+For Anthropic Blog (anthropic.com/news):
+- Cross-check: has this URL or title appeared in any previous briefing context?
+- Only include if the article URL contains today's or yesterday's date string
+- Example of VALID URL: `anthropic.com/news/2026-02-07-claude-update`
+- If URL has no date, require visible page timestamp ≤ 36 hours old
+
+For OpenAI Blog (openai.com/blog):
+- Apply same URL date-check rule
+- Official product pages (openai.com/chatgpt, openai.com/api) are NOT news - exclude unless a specific changelog or announcement was published today
+
+For Google/DeepMind blogs:
+- Apply same 36-hour rule
+- Distinguish between "research blog post" (has date) vs "product page" (no date, exclude)
+
+**Step 4 - When in doubt, exclude**:
+- If you cannot verify the publication date is within the 36-hour window, DO NOT include the item
+- It is better to have 7 high-confidence fresh items than 10 items with 3 stale repeats
+
+### 7. Cross-Day Deduplication Log 📋
+
+At the start of each briefing generation, mentally note the following "likely stale" signals:
+
+**Stale signals (skip this item)**:
+- The article title is nearly identical to something that "feels" like ongoing coverage
+- The article is from an official company blog and describes a product feature (not a new announcement)
+- The source URL is a permanent product page (e.g., `/features`, `/pricing`, `/about`)
+- The article has very high engagement metrics but a publication date > 36 hours ago
+
+**Fresh signals (include this item)**:
+- URL contains today's or yesterday's date
+- Article explicitly says "today", "announced this morning", "as of [today's date]"
+- The item is a direct response to another item in today's briefing
+- First appearance in a major news aggregator (HN, ProductHunt) is within 36 hours
+
 **Handling rules**:
 - Tier 3 sources MUST be marked with "（未核实）" in the headline
 - When multiple sources cover the same event, cite up to 3 sources with priority: Tier 1 > Tier 2 > Tier 3
@@ -413,19 +468,18 @@ Provide 3-5 clear, individually actionable recommendations.
 
 📊 元信息
 
-• 抓取时间：YYYY-MM-DD HH:MM (任务时区)
-• 原始检索条数 / 去重后条数 / Top 10 选取数：XX / XX / 10
-• 深度解析数：X
-• 主要来源（按引用频次）：
+- 抓取时间：YYYY-MM-DD HH:MM (任务时区)
+- 原始检索条数 / 时间窗口过滤后 / 去重后 / Top 10 选取数：XX / XX / XX / 10
+- 时间窗口：过去 36 小时（YYYY-MM-DD HH:MM 至 YYYY-MM-DD HH:MM）
+- 深度解析数：X
+- 排除条目说明：[列出被排除的主要原因，如"3 条 Anthropic 官网文章因发布时间超过 36 小时被排除"]
+- 主要来源（按引用频次）：
   1. [来源 1 + 链接]
   2. [来源 2 + 链接]
   3. [来源 3 + 链接]
   [最多 6 个来源]
 
 ---
-
-*本简报由 Manus AI 自动生成，专为个人 AI 学习者定制 | 数据来源已按可信度分级验证*
-*💡 提示：所有推荐的工具和资源都考虑了个人用户的可负担性和可访问性*
 ```
 
 ---
@@ -497,6 +551,11 @@ Before returning the briefing, verify:
 - [ ] Tier 3 sources are marked "（未核实）"
 - [ ] News prioritizes free/affordable tools over enterprise products
 - [ ] Total length ≤ max_length_chars
+- [ ] Every Top 10 item has a verified publication timestamp within the 36-hour window
+- [ ] No items sourced from permanent product pages (only dated news/blog posts)
+- [ ] Anthropic and OpenAI blog items have been date-verified via URL or page metadata
+- [ ] "排除条目说明" in meta section lists why any items were excluded
+- [ ] If fewer than 7 fresh items found, briefing explicitly notes "今日新鲜内容不足 7 条" rather than padding with stale content
 
 ---
 
