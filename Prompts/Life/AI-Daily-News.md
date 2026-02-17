@@ -1,4 +1,4 @@
-# AI Daily Deep Briefing - Personal Edition (Optimized v2.1)
+# AI Daily Deep Briefing
 
 ## Task Goal
 Fetch and synthesize the most important AI news up to "today at 09:00 local task time" and produce a longer, more detailed, and reader-friendly deep daily briefing optimized for individual AI enthusiasts, learners, and professionals.
