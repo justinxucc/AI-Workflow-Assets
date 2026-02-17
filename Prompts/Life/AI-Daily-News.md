@@ -15,7 +15,7 @@ max_length_chars: 6000        # overall briefing length limit (Chinese character
 include_links: true
 include_research_refs: true
 include_data_tables: true
-timezone: use the Manus task timezone (ensure task timezone is set correctly)
+timezone: use the task timezone (ensure task timezone is set correctly)
 target_audience: individual   # individual vs enterprise
 ```
 
@@ -621,7 +621,7 @@ Before returning the briefing, verify:
 
 ---
 
-## Suggested Manus Task Configuration
+## Suggested Task Configuration
 
 ```yaml
 Task Name: AI Daily Briefing (Personal Edition)
